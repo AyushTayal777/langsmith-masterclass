@@ -1,5 +1,5 @@
 # pip install -U langgraph langchain-openai pydantic python-dotenv langsmith
-
+import os
 import operator
 from typing import TypedDict, Annotated, List
 
@@ -7,17 +7,22 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
 from langsmith import traceable
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langgraph.graph import StateGraph, START, END
+
+os.environ['LANGCHAIN_PROJECT']='LangGraph essay'
 
 # ---------- Setup ----------
 load_dotenv()
-model = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+model = ChatGroq(
+    model="openai/gpt-oss-20b",
+    temperature=0.7
+)
 
 # ---------- Structured schema & model ----------
 class EvaluationSchema(BaseModel):
     feedback: str = Field(description="Detailed feedback for the essay")
-    score: int = Field(description="Score out of 10", ge=0, le=10)
+    score:float = Field(description="Score out of 10", ge=0, le=10)
 
 structured_model = model.with_structured_output(EvaluationSchema)
 
